@@ -94,7 +94,7 @@ export default function Layout() {
 
   // WhatsApp icon: API set ho to message seedha jata hai, warna wa link khulta hai
   useEffect(() => {
-    if (!config.waApiReady) return undefined;
+    if (!config?.waApiReady) return undefined;
     const onClick = async (e) => {
       const a = e.target.closest && e.target.closest('a[href^="https://api.whatsapp.com/send"]');
       if (!a) return;
@@ -114,7 +114,7 @@ export default function Layout() {
     };
     document.addEventListener('click', onClick);
     return () => document.removeEventListener('click', onClick);
-  }, [config.waApiReady]);
+  }, [config?.waApiReady]);
 
   const back = () => (window.history.state?.idx > 0 ? navigate(-1) : navigate('/' + seg[0]));
   const search = (e) => { e.preventDefault(); navigate('/students?q=' + encodeURIComponent(q.trim())); };

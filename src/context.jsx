@@ -18,7 +18,10 @@ export function AppProvider({ children }) {
   }, [theme]);
 
   const loadConfig = useCallback(async () => {
-    try { setConfig(await api.get('/config')); } catch { /* ignore */ }
+    try {
+      const r = await api.get('/config');
+      if (r && typeof r === 'object') setConfig((c) => ({ ...c, ...r }));
+    } catch { /* ignore */ }
   }, []);
 
   useEffect(() => {

@@ -16,14 +16,14 @@ const footer = (cfg) => `\n\n${cfg.academyName}${cfg.academyPhone ? '\nContact: 
 export const reminderLink = (s, due, cfg) =>
   waLink(
     s.parentWhatsApp,
-    `Assalam o Alaikum ${s.parentName},\n${s.studentName} (${s.studentCode}) ki tuition fee ${money(due)} baqaya hai.\nMeherbani karke jald fee ada karein. Shukriya.` + footer(cfg),
+    `Assalam o Alaikum ${s.parentName},\n${s.studentName} ki tuition fee ${money(due)} baqaya hai.\nMeherbani karke jald fee ada karein. Shukriya.` + footer(cfg),
     cfg.countryCode
   );
 
 export const receiptLink = (s, p, monthBalance, cfg) =>
   waLink(
     s.parentWhatsApp,
-    `Assalam o Alaikum ${s.parentName},\n${s.studentName} (${s.studentCode}) ki ${monthName(p.month)} ${p.year} ki fee ${money(p.amount)} ${fmtDate(p.paymentDate)} ko wasool hui.\n` +
+    `Assalam o Alaikum ${s.parentName},\n${s.studentName} ki ${monthName(p.month)} ${p.year} ki fee ${money(p.amount)} ${fmtDate(p.paymentDate)} ko wasool hui.\n` +
       (monthBalance > 0 ? `Is mahine ki baqaya fee: ${money(monthBalance)}.\n` : 'Is mahine ki fee mukammal ada ho gayi hai.\n') +
       'Shukriya.' + footer(cfg),
     cfg.countryCode

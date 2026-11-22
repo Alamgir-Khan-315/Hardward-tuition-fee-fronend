@@ -1,7 +1,9 @@
 import { useEffect, useState } from 'react';
 import { NavLink, Outlet, useNavigate, useLocation } from 'react-router-dom';
-import { LayoutDashboard, Users, Banknote, BarChart3, Info, LogOut, Sun, Moon, ChevronLeft, Menu, Search, Calendar, Headset, X, Phone, Mail, Globe, MessageCircle } from 'lucide-react';
+import { LayoutDashboard, Users, Banknote, BarChart3, Info, LogOut, Sun, Moon, ChevronLeft, Menu, Search, Calendar, Headset, X, Phone, Mail, Globe, MessageCircle, Settings as Cog } from 'lucide-react';
+import toast from 'react-hot-toast';
 import { useApp } from '../context.jsx';
+import { api } from '../api.js';
 import { DEV } from '../utils/developer.js';
 import { waLink } from '../utils/whatsapp.js';
 
@@ -28,6 +30,7 @@ function titleFor(pathname) {
   }
   if (p[0] === 'reports') return 'Report';
   if (p[0] === 'about') return 'About';
+  if (p[0] === 'settings') return 'Settings';
   return 'Fee Manager';
 }
 
@@ -66,7 +69,7 @@ function ContactMenu() {
 }
 
 export default function Layout() {
-  const { logout, theme, toggleTheme } = useApp();
+  const { theme, toggleTheme, config } = useApp();
   const navigate = useNavigate();
   const { pathname, key } = useLocation();
   const [typing, setTyping] = useState(false);
@@ -88,6 +91,30 @@ export default function Layout() {
   }, []);
 
   useEffect(() => { window.scrollTo(0, 0); }, [pathname]);
+
+  // WhatsApp icon: API set ho to message seedha jata hai, warna wa link khulta hai
+  useEffect(() => {
+    if (!config.waApiReady) return undefined;
+    const onClick = async (e) => {
+      const a = e.target.closest && e.target.closest('a[href^="https://api.whatsapp.com/send"]');
+      if (!a) return;
+      const u = new URL(a.href);
+      const to = u.searchParams.get('phone') || '';
+      const message = u.searchParams.get('text') || '';
+      if (message.length < 40) return; // sirf "Assalam o Alaikum" wali chat: manual khulegi
+      e.preventDefault();
+      const t = toast.loading('WhatsApp message bheja ja raha hai...');
+      try {
+        await api.post('/whatsapp/send', { to, message });
+        toast.success('Message bhej diya gaya', { id: t });
+      } catch (err) {
+        toast.error(err.message + ' - WhatsApp khol rahe hain', { id: t });
+        window.open(a.href, '_blank', 'noreferrer');
+      }
+    };
+    document.addEventListener('click', onClick);
+    return () => document.removeEventListener('click', onClick);
+  }, [config.waApiReady]);
 
   const back = () => (window.history.state?.idx > 0 ? navigate(-1) : navigate('/' + seg[0]));
   const search = (e) => { e.preventDefault(); navigate('/students?q=' + encodeURIComponent(q.trim())); };
@@ -113,15 +140,12 @@ export default function Layout() {
           ))}
         </nav>
         <div className="mt-auto">
-          <button onClick={logout} className="flex w-full items-center gap-3 rounded-xl bg-red-500/10 px-3.5 py-3 text-[15px] font-medium text-red-500 transition duration-200 hover:bg-red-500 hover:text-white">
-            <LogOut size={20} /> Logout
-          </button>
-          <div className="px-1 pt-3 text-xs text-muted">Version 1.1</div>
+          <div className="px-1 text-xs text-muted">Version 1.1</div>
         </div>
       </aside>
 
       {/* ===== Content area (mobile: centered 480px, laptop: full width next to sidebar) ===== */}
-      <div className={'relative mx-auto min-h-dvh w-full max-w-[480px] bg-app sm:border-x sm:border-line lg:mx-0 lg:max-w-none lg:border-x-0 lg:transition-[margin] lg:duration-300 ' + (collapsed ? 'lg:ml-0' : 'lg:ml-64')}>
+      <div className={'relative mx-auto min-h-dvh w-full max-w-[480px] bg-app sm:border-x sm:border-line lg:mx-0 lg:w-auto lg:max-w-none lg:border-x-0 lg:transition-[margin] lg:duration-300 ' + (collapsed ? 'lg:ml-0' : 'lg:ml-64')}>
         <header className="sticky top-0 z-30 border-b border-line bg-app/85 backdrop-blur-xl" style={{ paddingTop: 'env(safe-area-inset-top, 0px)' }}>
           <div className="flex h-16 items-center gap-3 px-4 lg:px-8">
             <button onClick={() => setCollapsed((c) => !c)} aria-label="Menu" className="btn-icon hidden size-11 !border-blue-600 !bg-blue-600 !text-white lg:inline-flex"><Menu size={22} /></button>
@@ -139,14 +163,14 @@ export default function Layout() {
             <div className="hidden items-center gap-2 text-sm font-semibold text-head xl:flex"><Calendar size={17} className="text-blue-600" />{today}</div>
 
             <ContactMenu />
+            <NavLink to="/settings" aria-label="Settings" className="btn-icon size-11 rounded-2xl"><Cog size={20} /></NavLink>
             <button onClick={toggleTheme} aria-label="Day / Night" className="btn-icon size-11 rounded-2xl">
               <span key={theme} className="animate-pop">{theme === 'dark' ? <Sun size={20} /> : <Moon size={20} />}</span>
             </button>
-            <button onClick={logout} aria-label="Logout" className="btn-icon size-11 rounded-2xl lg:hidden"><LogOut size={20} /></button>
           </div>
         </header>
 
-        <main key={pathname} className="animate-fade-up px-4 pt-4 pb-36 lg:mx-auto lg:max-w-[1400px] lg:px-8 lg:pt-6 lg:pb-8">
+        <main key={pathname} className="animate-fade-up px-4 pt-4 pb-36 lg:max-w-none lg:px-8 lg:pt-6 lg:pb-8">
           <Outlet />
         </main>
 

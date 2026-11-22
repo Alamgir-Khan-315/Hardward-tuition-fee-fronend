@@ -5,7 +5,7 @@ const Ctx = createContext(null);
 export const useApp = () => useContext(Ctx);
 
 export function AppProvider({ children }) {
-  const [user, setUser] = useState(null);
+  const [user] = useState({ username: 'admin', role: 'Admin' });
   const [config, setConfig] = useState({ academyName: 'Academy', academyPhone: '', countryCode: '92' });
   const [loading, setLoading] = useState(true);
   const [theme, setThemeState] = useState(() => {
@@ -22,25 +22,10 @@ export function AppProvider({ children }) {
   }, []);
 
   useEffect(() => {
-    api.get('/auth/me')
-      .then(async (r) => { setUser(r.user); await loadConfig(); })
-      .catch(() => setUser(null))
-      .finally(() => setLoading(false));
-    const onUnauth = () => setUser(null);
-    window.addEventListener('unauthorized', onUnauth);
-    return () => window.removeEventListener('unauthorized', onUnauth);
+    loadConfig().finally(() => setLoading(false));
   }, [loadConfig]);
 
-  const login = async (username, password) => {
-    const r = await api.post('/auth/login', { username, password });
-    setUser(r.user);
-    await loadConfig();
-  };
-  const logout = async () => {
-    try { await api.post('/auth/logout'); } catch { /* ignore */ }
-    setUser(null);
-  };
   const toggleTheme = () => setThemeState((t) => (t === 'dark' ? 'light' : 'dark'));
 
-  return <Ctx.Provider value={{ user, config, loading, theme, toggleTheme, login, logout }}>{children}</Ctx.Provider>;
+  return <Ctx.Provider value={{ user, config, setConfig, loading, theme, toggleTheme }}>{children}</Ctx.Provider>;
 }

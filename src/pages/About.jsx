@@ -10,7 +10,7 @@ const features = [
   { icon: Banknote, t: 'Fees', d: 'Mahina select karein, fee likh kar Paid dabayein. Galti ho to Edit ya Delete.' },
   { icon: BarChart3, t: 'Report', d: 'Mahine ka paid aur unpaid ka hisaab.' },
   { icon: MessageCircle, t: 'WhatsApp', d: 'Reminder aur receipt ka message tayyar hokar WhatsApp mein khul jata hai.' },
-  { icon: ShieldCheck, t: 'Secure Login', d: 'Admin login ke bagair koi page nahi khulta.' },
+  { icon: ShieldCheck, t: 'Owner Settings', d: 'Owner ka WhatsApp number sirf username aur password dene par badalta hai.' },
 ];
 
 const skills = [

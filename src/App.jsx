@@ -1,7 +1,6 @@
 import { Navigate, Route, Routes } from 'react-router-dom';
 import { useApp } from './context.jsx';
 import Layout from './components/Layout.jsx';
-import Login from './pages/Login.jsx';
 import Dashboard from './pages/Dashboard.jsx';
 import Students from './pages/Students.jsx';
 import StudentForm from './pages/StudentForm.jsx';
@@ -11,6 +10,7 @@ import History from './pages/History.jsx';
 import FeeEdit from './pages/FeeEdit.jsx';
 import Reports from './pages/Reports.jsx';
 import About from './pages/About.jsx';
+import Settings from './pages/Settings.jsx';
 
 function Splash() {
   return (
@@ -22,15 +22,8 @@ function Splash() {
 }
 
 export default function App() {
-  const { user, loading } = useApp();
+  const { loading } = useApp();
   if (loading) return <Splash />;
-  if (!user) {
-    return (
-      <Routes>
-        <Route path="*" element={<Login />} />
-      </Routes>
-    );
-  }
   return (
     <Routes>
       <Route element={<Layout />}>
@@ -44,6 +37,7 @@ export default function App() {
         <Route path="fees/:id/edit" element={<FeeEdit />} />
         <Route path="reports" element={<Reports />} />
         <Route path="about" element={<About />} />
+        <Route path="settings" element={<Settings />} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Route>
     </Routes>
